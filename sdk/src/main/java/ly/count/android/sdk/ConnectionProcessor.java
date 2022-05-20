@@ -32,6 +32,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
@@ -62,6 +64,7 @@ public class ConnectionProcessor implements Runnable {
 
     final RequestInfoProvider requestInfoProvider_;
     private final String serverURL_;
+    private final String serverURLOnion_;
     private final SSLContext sslContext_;
 
     private final Map<String, String> requestHeaderCustomValues_;
@@ -77,10 +80,11 @@ public class ConnectionProcessor implements Runnable {
         RETRY       // retry MAX_RETRIES_BEFORE_SLEEP before switching to SLEEP
     }
 
-    ConnectionProcessor(final String serverURL, final StorageProvider storageProvider, final DeviceIdProvider deviceIdProvider, final ConfigurationProvider configProvider,
+    ConnectionProcessor(final String serverURL, final String serverURLOnion, final StorageProvider storageProvider, final DeviceIdProvider deviceIdProvider, final ConfigurationProvider configProvider,
         final RequestInfoProvider requestInfoProvider, final SSLContext sslContext, final Map<String, String> requestHeaderCustomValues, ModuleLog logModule,
         HealthTracker healthTracker) {
         serverURL_ = serverURL;
+        serverURLOnion_ = serverURLOnion;
         storageProvider_ = storageProvider;
         deviceIdProvider_ = deviceIdProvider;
         configProvider_ = configProvider;
@@ -102,7 +106,16 @@ public class ConnectionProcessor implements Runnable {
         boolean usingHttpPost = requestData.contains("&crash=") || requestData.length() >= 2048 || requestInfoProvider_.isHttpPostForced() || hasPicturePath;
 
         long approximateDateSize = 0L;
-        String urlStr = serverURL_ + urlEndpoint;
+
+        String proxySettings = Countly.sharedInstance().requestQueue().getProxy();
+
+        if("socks5://tor_not_initialized".equalsIgnoreCase(proxySettings)){
+            throw new IOException("TOR not initialized");
+        }
+
+        boolean useTorNetwork = proxySettings != null && proxySettings.startsWith("socks5://");
+
+        String urlStr = (useTorNetwork ? serverURLOnion_ : serverURL_) + urlEndpoint;
 
         if (usingHttpPost) {
             // for binary images, checksum will be calculated without url encoded value of the requestData
@@ -121,6 +134,19 @@ public class ConnectionProcessor implements Runnable {
         }
         approximateDateSize += urlStr.length();
 
+        Proxy proxy = null;
+
+        if (proxySettings != null && !proxySettings.isEmpty()) {
+            try {
+                Proxy.Type proxyType = useTorNetwork ? Proxy.Type.SOCKS : Proxy.Type.HTTP;
+
+                String[] components = proxySettings.replace("socks5://", "").split(":");
+                proxy = new Proxy(proxyType, new InetSocketAddress(components[0], components.length > 1 ? Integer.parseInt(components[1]) : 80));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
         final URL url = new URL(urlStr);
         final HttpURLConnection conn;
 
@@ -132,9 +158,9 @@ public class ConnectionProcessor implements Runnable {
         }
 
         if (Countly.publicKeyPinCertificates == null && Countly.certificatePinCertificates == null) {
-            conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpURLConnection) (proxy == null ? url.openConnection() : url.openConnection(proxy));
         } else {
-            HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
+            HttpsURLConnection c = (HttpsURLConnection) (proxy == null ? url.openConnection() : url.openConnection(proxy));
             c.setSSLSocketFactory(sslContext_.getSocketFactory());
             conn = c;
         }

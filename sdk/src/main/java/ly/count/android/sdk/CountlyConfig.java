@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.Proxy;
 import java.util.Map;
 
 public class CountlyConfig {
@@ -73,6 +74,12 @@ public class CountlyConfig {
     protected String serverURL = null;
 
     /**
+     * Onion URL of the Countly server to submit data to.
+     * Mandatory field.
+     */
+    protected String serverURLOnion = null;
+
+    /**
      * app key for the application being tracked; find in the Countly Dashboard under Management &gt; Applications.
      * Mandatory field.
      */
@@ -137,6 +144,8 @@ public class CountlyConfig {
     protected String[] enabledFeatureNames = null;
 
     protected boolean httpPostForced = false;
+
+    protected String networkProxy = null;
 
     protected boolean temporaryDeviceIdEnabled = false;
 
@@ -257,6 +266,13 @@ public class CountlyConfig {
         setApplication(application);
     }
 
+    public CountlyConfig(Application application, String appKey, String serverURL, String serverURLOnion) {
+        setAppKey(appKey);
+        setServerURL(serverURL);
+        setServerURLOnion(serverURLOnion);
+        setApplication(application);
+    }
+
     /**
      * Android context.
      * Mandatory field.
@@ -276,6 +292,17 @@ public class CountlyConfig {
      */
     public synchronized CountlyConfig setServerURL(String serverURL) {
         this.serverURL = serverURL;
+        return this;
+    }
+
+    /**
+     * Onion URL of the Countly server to submit data to.
+     * Mandatory field.
+     *
+     * @return Returns the same config object for convenient linking
+     */
+    public synchronized CountlyConfig setServerURLOnion(String serverURLOnion) {
+        this.serverURLOnion = serverURLOnion;
         return this;
     }
 
@@ -609,6 +636,18 @@ public class CountlyConfig {
     }
 
     /**
+     * Set Proxy for all connections to the server
+     *
+     * @param proxy settings for all network calls
+     * @return Returns the same config object for convenient linking
+     */
+    public synchronized CountlyConfig setProxy(String proxy) {
+        networkProxy = proxy;
+        return this;
+    }
+
+    /**
+     *
      * @return Returns the same config object for convenient linking
      */
     public synchronized CountlyConfig enableTemporaryDeviceIdMode() {

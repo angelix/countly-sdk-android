@@ -31,6 +31,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ProcessLifecycleOwner;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -186,6 +187,9 @@ public class Countly {
     //overrides
     boolean isHttpPostForced = false;//when true, all data sent to the server will be sent using HTTP POST
 
+    //overrides
+    String proxy = null; // Proxy setting for all network operations (hostname:port)
+
     //push related
     private boolean addMetadataToPushIntents = false;// a flag that indicates if metadata should be added to push notification intents
 
@@ -307,6 +311,11 @@ public class Countly {
             config.serverURL = config.serverURL.substring(0, config.serverURL.length() - 1);//removing trailing '/' from server url
         }
 
+        if (config.serverURLOnion != null && config.serverURLOnion.charAt(config.serverURLOnion.length() - 1) == '/') {
+            L.v("[Init] Removing trailing '/' from provided server onion url");
+            config.serverURLOnion = config.serverURLOnion.substring(0, config.serverURLOnion.length() - 1);//removing trailing '/' from server onion url
+        }
+
         if (config.appKey == null || config.appKey.isEmpty()) {
             throw new IllegalArgumentException("valid appKey is required, but was provided either 'null' or empty String");
         }
@@ -323,7 +332,7 @@ public class Countly {
             config.setDeviceId(null);
         }
 
-        L.d("[Init] SDK initialised with the URL:[" + config.serverURL + "] and the appKey:[" + config.appKey + "]");
+        L.d("[Init] SDK initialised with the URL:[" + config.serverURL + (config.serverURLOnion != null ? ", " + config.serverURLOnion : "") + "] and the appKey:[" + config.appKey + "]");
 
         if (L.logEnabled()) {
             L.i("[Init] Checking init parameters");
@@ -619,6 +628,11 @@ public class Countly {
             if (config.httpPostForced) {
                 L.d("[Init] Setting HTTP POST to be forced");
                 isHttpPostForced = config.httpPostForced;
+            }
+
+            if (config.networkProxy != null) {
+                L.d("[Init] Setting Proxy");
+                proxy = config.networkProxy;
             }
 
             if (config.tamperingProtectionSalt != null) {
