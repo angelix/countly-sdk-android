@@ -963,7 +963,7 @@ class ConnectionQueue implements RequestQueueProvider {
 
     public ConnectionProcessor createConnectionProcessor() {
 
-        ConnectionProcessor cp = new ConnectionProcessor(baseInfoProvider.getServerURL(), storageProvider, deviceIdProvider_, configProvider, requestInfoProvider, sslContext_, requestHeaderCustomValues, L, healthTracker, new Runnable() {
+        ConnectionProcessor cp = new ConnectionProcessor(baseInfoProvider.getServerURL(), baseInfoProvider.getServerURLOnion(), storageProvider, deviceIdProvider_, configProvider, requestInfoProvider, sslContext_, requestHeaderCustomValues, L, healthTracker, new Runnable() {
             @Override
             public void run() {
                 L.d("[ConnectionQueue] createConnectionProcessor:run, backed off, countdown started for " + configProvider.getBOMDuration() + " seconds");

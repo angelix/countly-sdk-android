@@ -4,4 +4,5 @@ interface BaseInfoProvider {
     String getAppKey();
 
     String getServerURL();
+    String getServerURLOnion();
 }

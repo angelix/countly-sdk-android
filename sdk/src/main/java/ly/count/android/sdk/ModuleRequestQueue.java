@@ -2,6 +2,7 @@ package ly.count.android.sdk;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ public class ModuleRequestQueue extends ModuleBase implements BaseInfoProvider {
 
     @NonNull String appKey;
     @NonNull String serverURL;
+    String serverURLOnion;
 
     //app crawlers
     private boolean shouldIgnoreCrawlers = true;//ignore app crawlers by default
@@ -42,6 +44,7 @@ public class ModuleRequestQueue extends ModuleBase implements BaseInfoProvider {
 
         appKey = config.appKey;
         serverURL = config.serverURL;
+        serverURLOnion = config.serverURLOnion;
 
         //app crawler check
         if (config.shouldIgnoreAppCrawlers) {
@@ -65,6 +68,11 @@ public class ModuleRequestQueue extends ModuleBase implements BaseInfoProvider {
 
     @Override public @NonNull String getServerURL() {
         return serverURL;
+    }
+
+    @Override
+    public String getServerURLOnion() {
+        return serverURLOnion;
     }
 
     synchronized List<String> requestQueueReplaceWithAppKey(String[] storedRequests, String targetAppKey) {
@@ -181,6 +189,14 @@ public class ModuleRequestQueue extends ModuleBase implements BaseInfoProvider {
 
     boolean isHttpPostForcedInternal() {
         return _cly.isHttpPostForced;
+    }
+
+    String getProxyInternal() {
+        return _cly.proxy;
+    }
+
+    void setProxyInternal(String proxy) {
+        _cly.proxy = proxy;
     }
 
     boolean isDeviceAppCrawlerInternal() {
@@ -351,6 +367,29 @@ public class ModuleRequestQueue extends ModuleBase implements BaseInfoProvider {
                 L.v("[RequestQueue] Calling 'isHttpPostForced'");
 
                 return isHttpPostForcedInternal();
+            }
+        }
+
+        /**
+         * Get proxy
+         *
+         * @return return Proxy hostname:port or null
+         */
+        public String getProxy() {
+            synchronized (_cly) {
+                L.i("[RequestQueue] Calling 'getProxy'");
+                return getProxyInternal();
+            }
+        }
+
+        /**
+         * Set proxy
+         *
+         */
+        public void setProxy(String proxy) {
+            synchronized (_cly) {
+                L.i("[RequestQueue] Calling 'setProxy'");
+                setProxyInternal(proxy);
             }
         }
 
