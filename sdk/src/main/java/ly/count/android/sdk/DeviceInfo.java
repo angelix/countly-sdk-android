@@ -638,7 +638,6 @@ class DeviceInfo {
         //we set the override to null because all of the entries will be overwritten anyway
         Map<String, Object> metrics = getCommonMetrics(context, null, L);
 
-        putIfNotNullAndNotEmpty(metrics, "_carrier", mp.getCarrier(context));
         putIfNotNullAndNotEmpty(metrics, "_density", mp.getDensity(context));
         putIfNotNullAndNotEmpty(metrics, "_locale", mp.getLocale());
         putIfNotNullAndNotEmpty(metrics, "_store", mp.getStore(context));
