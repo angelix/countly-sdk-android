@@ -264,6 +264,10 @@ public class Countly {
         timerFuture = service.scheduleWithFixedDelay(this::onTimer, timerDelay, timerDelay, TimeUnit.SECONDS);
     }
 
+    public void setOffset(Long offset) {
+        UtilsTime.offsetMs = offset;
+    }
+
     /**
      * Must be called before other SDK methods can be used.
      * To initialise the SDK, you must pass a CountlyConfig object that contains

@@ -8,6 +8,8 @@ import java.util.List;
 public class UtilsTime {
     protected static int ONE_SECOND_IN_MS = 1000;
 
+    public static long offsetMs = 0;
+
     public static class Instant {
         public final long timestampMs;
         public final int hour;
@@ -74,7 +76,7 @@ public class UtilsTime {
         final long addition = 0;
 
         long currentTimeMillis() {
-            return System.currentTimeMillis() + addition;
+            return System.currentTimeMillis() + addition - offsetMs;
         }
 
         synchronized long uniqueTimestamp() {
