@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.util.EventListener;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class ModuleDeviceId extends ModuleBase implements OpenUDIDProvider, DeviceIdProvider {
     boolean exitTempIdAfterInit = false;
@@ -101,7 +103,7 @@ public class ModuleDeviceId extends ModuleBase implements OpenUDIDProvider, Devi
      *
      * @param deviceId Optional device ID for a case when type = DEVELOPER_SPECIFIED
      */
-    void changeDeviceIdWithoutMergeInternal(@NonNull String deviceId) {
+    void changeDeviceIdWithoutMergeInternal(@NonNull String deviceId, @Nullable ChangeIdCallback callback) {
         if (isTemporaryIdEnabled() && deviceId.equals(ly.count.android.sdk.DeviceId.temporaryCountlyDeviceId)) {
             // we already are in temporary mode and we want to set temporary mode
             // in this case we just ignore the request since nothing has to be done
@@ -142,6 +144,11 @@ public class ModuleDeviceId extends ModuleBase implements OpenUDIDProvider, Devi
 
         //remove all consent
         _cly.moduleConsent.removeConsentAllInternal(ModuleConsent.ConsentChangeSource.DeviceIDChangedNotMerged);
+
+        // Change offset if required
+        if(callback != null){
+            callback.callback();
+        }
 
         if (deviceId.equals(ly.count.android.sdk.DeviceId.temporaryCountlyDeviceId)) {
             // entering temp ID mode
@@ -220,7 +227,7 @@ public class ModuleDeviceId extends ModuleBase implements OpenUDIDProvider, Devi
             // an ID was provided by the host app previously
             // we can assume that a device ID change with merge was executed previously
             // now we change it without merging
-            changeDeviceIdWithoutMergeInternal(newDeviceID);
+            changeDeviceIdWithoutMergeInternal(newDeviceID, null);
         } else {
             // SDK generated ID
             // we change device ID with merge so that data is combined
@@ -293,7 +300,7 @@ public class ModuleDeviceId extends ModuleBase implements OpenUDIDProvider, Devi
          *
          * @param deviceId New device ID
          */
-        public void changeWithoutMerge(@Nullable String deviceId) {
+        public void changeWithoutMerge(@Nullable String deviceId, @Nullable ChangeIdCallback callback) {
             synchronized (_cly) {
                 L.d("[DeviceId] Calling 'changeDeviceIdWithoutMerge'");
 
@@ -302,10 +309,10 @@ public class ModuleDeviceId extends ModuleBase implements OpenUDIDProvider, Devi
                     return;
                 }
 
-                changeDeviceIdWithoutMergeInternal(deviceId);
+                changeDeviceIdWithoutMergeInternal(deviceId, callback);
             }
         }
-
+        
         /**
          * Changes current device id to the one specified in parameter. Merges user profile with new id
          * (if any) with old profile.
@@ -372,7 +379,7 @@ public class ModuleDeviceId extends ModuleBase implements OpenUDIDProvider, Devi
             synchronized (_cly) {
                 L.i("[DeviceId] Calling 'enableTemporaryIdMode'");
 
-                changeDeviceIdWithoutMergeInternal(ly.count.android.sdk.DeviceId.temporaryCountlyDeviceId);
+                changeDeviceIdWithoutMergeInternal(ly.count.android.sdk.DeviceId.temporaryCountlyDeviceId, null);
             }
         }
     }
