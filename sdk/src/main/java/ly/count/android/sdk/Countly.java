@@ -216,6 +216,7 @@ public class Countly {
     boolean applicationClassProvided = false;
 
     public static class CountlyFeatureNames {
+        public static final String metrics = "metrics";
         public static final String sessions = "sessions";
         public static final String events = "events";
         public static final String views = "views";

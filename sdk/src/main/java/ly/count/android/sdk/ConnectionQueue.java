@@ -743,8 +743,8 @@ class ConnectionQueue implements RequestQueueProvider {
     }
 
     public String prepareRemoteConfigRequestLegacy(@Nullable String keysInclude, @Nullable String keysExclude, @NonNull String preparedMetrics) {
-        String data = prepareCommonRequestData() + "&method=fetch_remote_config";
-        if (consentProvider.getConsent(Countly.CountlyFeatureNames.sessions)) {
+        String data = prepareCommonRequestData() + "&method=fetch_remote_config" + "&device_id=" + UtilsNetworking.urlEncodeString(deviceIdProvider_.getDeviceId());
+        if (consentProvider.getConsent(Countly.CountlyFeatureNames.sessions) || consentProvider.getConsent(Countly.CountlyFeatureNames.metrics)) {
             //add session data if consent given
             data += "&metrics=" + preparedMetrics;
         }
@@ -760,8 +760,8 @@ class ConnectionQueue implements RequestQueueProvider {
     }
 
     public String prepareRemoteConfigRequest(@Nullable String keysInclude, @Nullable String keysExclude, @NonNull String preparedMetrics, boolean autoEnroll) {
-        String data = prepareCommonRequestData() + "&method=rc";
-        if (consentProvider.getConsent(Countly.CountlyFeatureNames.sessions)) {
+        String data = prepareCommonRequestData() + "&method=rc" + "&device_id=" + UtilsNetworking.urlEncodeString(deviceIdProvider_.getDeviceId());
+        if (consentProvider.getConsent(Countly.CountlyFeatureNames.sessions) || consentProvider.getConsent(Countly.CountlyFeatureNames.metrics)) {
             //add session data if consent given
             data += "&metrics=" + preparedMetrics;
         }
