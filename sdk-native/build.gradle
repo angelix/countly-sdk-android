@@ -12,6 +12,7 @@ buildscript {
 
 android {
   compileSdkVersion 35
+  namespace 'ly.count.android.sdknative'
 
   defaultConfig {
     minSdk 21

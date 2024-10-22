@@ -13,6 +13,7 @@ buildscript {
 
 android {
   compileSdk 35
+  namespace 'ly.count.android.sdk'
   buildToolsVersion "35.0.0"
 
   defaultConfig {
