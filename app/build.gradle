@@ -70,10 +70,10 @@ android {
   }
 
   //required to get rid of this error "Invoke-customs are only supported starting with Android O (--min-api 26)"
-  //    compileOptions {
-  //        sourceCompatibility JavaVersion.VERSION_1_8
-  //        targetCompatibility JavaVersion.VERSION_1_8
-  //    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
 
   /*
   //for automatic symbol upload

@@ -5,7 +5,7 @@ apply plugin: 'com.android.application'
 
 android {
   compileSdkVersion 35
-  namespace 'ly.count.android.demo.kotlin.crash'
+  namespace "ly.count.android.demo.crash"
 
   defaultConfig {
     applicationId "ly.count.android.demo.crash"

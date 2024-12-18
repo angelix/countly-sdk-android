@@ -12,7 +12,7 @@ buildscript {
 
 android {
   compileSdkVersion 35
-  namespace 'ly.count.android.sdknative'
+  namespace "ly.count.android.sdknative"
 
   defaultConfig {
     minSdk 21
@@ -44,7 +44,7 @@ task copyLibs(type: Copy) {
 }
 
 tasks.whenTaskAdded { task ->
-  if (task.name.startsWith('assemble')) {
+  if (task.name.contains('JniLibFolders')) {
     task.dependsOn('copyLibs')
   }
 }
