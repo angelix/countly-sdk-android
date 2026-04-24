@@ -44,7 +44,7 @@ task copyLibs(type: Copy) {
 }
 
 tasks.whenTaskAdded { task ->
-  if (task.name.startsWith('assemble')) {
+  if (task.name.startsWith('merge') && task.name.endsWith('JniLibFolders')) {
     task.dependsOn('copyLibs')
   }
 }
